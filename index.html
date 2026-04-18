@@ -1,0 +1,821 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Earth Engine Code Generator | Single Sentence Answers Only</title>
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { background: linear-gradient(135deg, #1a3f2c 0%, #2d5a3b 100%); font-family: 'Segoe UI', Roboto, system-ui; min-height: 100vh; padding: 24px; }
+            .container { max-width: 1100px; width: 100%; background: #fefdf7; border-radius: 32px; box-shadow: 0 30px 50px rgba(0,0,0,0.3); margin: 0 auto; overflow: hidden; }
+            .header { background: #1e3a2f; padding: 28px 32px; color: white; }
+            .header h1 { font-size: 2rem; font-weight: 600; }
+            .header p { margin-top: 10px; opacity: 0.85; }
+            
+            /* Undertaking Section Styles */
+        .undertaking-section {
+            background: #fff8e7;
+                border: 2px solid #cd8d3a;
+            border-radius: 20px;
+            margin: 20px 32px;
+                padding: 20px 28px;
+            }
+        .undertaking-title {
+                font-size: 1.2rem;
+            font-weight: 700;
+                color: #b8772c;
+            margin-bottom: 15px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            border-bottom: 1px solid #e0d5c0;
+            padding-bottom: 10px;
+            }
+        .undertaking-list {
+            list-style: none;
+            margin-bottom: 20px;
+            }
+        .undertaking-list li {
+            margin-bottom: 12px;
+                display: flex;
+            align-items: flex-start;
+                gap: 12px;
+            }
+        .undertaking-list li input[type="checkbox"] {
+                width: 20px;
+                height: 20px;
+            margin-top: 2px;
+                cursor: pointer;
+            accent-color: #2e8b57;
+            }
+        .undertaking-list li label {
+                font-size: 0.95rem;
+                color: #2c3e2f;
+                cursor: pointer;
+                line-height: 1.4;
+            }
+        .undertaking-btn {
+            background: #cd8d3a;
+                color: white;
+                border: none;
+                padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+                cursor: pointer;
+                font-size: 0.9rem;
+            transition: background 0.2s;
+            }
+        .undertaking-btn:hover {
+            background: #b8772c;
+            }
+        .undertaking-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            }
+        .undertaking-status {
+                font-size: 0.8rem;
+            margin-top: 10px;
+                color: #d94a2b;
+                display: none;
+            }
+            
+            .inputs-row { display: flex; flex-wrap: wrap; gap: 28px; padding: 32px 32px 20px; }
+            .card { flex: 1; min-width: 260px; background: #ffffff; border-radius: 24px; padding: 20px; box-shadow: 0 6px 14px rgba(0,0,0,0.05); border: 1px solid #e5e2d6; }
+            .veg-card { border-top: 6px solid #2e8b57; }
+            .open-card { border-top: 6px solid #cd8d3a; }
+            .card-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #efe6d8; }
+            .veg-card .card-title { color: #1f7848; }
+            .open-card .card-title { color: #b8772c; }
+            .input-group { margin-bottom: 20px; }
+            .input-group label { display: block; font-weight: 700; font-size: 0.75rem; color: #5b6b53; margin-bottom: 6px; }
+            .coord-box { display: flex; align-items: center; background: #fcfbf6; border: 1.8px solid #e0e3d8; border-radius: 60px; padding: 0 12px 0 20px; }
+            .coord-box input { flex: 1; border: none; background: transparent; padding: 12px 0; font-size: 1rem; font-family: monospace; outline: none; }
+            .coord-box .unit { font-size: 0.7rem; color: #8a9a82; background: #eef2e8; padding: 4px 10px; border-radius: 40px; }
+            .error-msg { color: #d94a2b; font-size: 0.7rem; margin-top: 5px; display: none; }
+            .generate-area { padding: 10px 32px 20px; display: flex; justify-content: center; }
+            .gen-btn { background: #1f5e41; border: none; color: white; font-size: 1rem; font-weight: 700; padding: 12px 28px; border-radius: 60px; cursor: pointer; min-width: 300px; }
+            .gen-btn:hover { background: #134b33; }
+        .gen-btn.disabled { background: #9ab39b; cursor: not-allowed; opacity: 0.6; }
+            .code-output { background: #1e2620; margin: 0 32px 20px; border-radius: 20px; overflow: hidden; }
+            .output-header { display: flex; justify-content: space-between; padding: 12px 20px; background: #2a342a; }
+            .output-header label { color: #cbd9c3; font-weight: 600; }
+            .copy-btn { background: #3b4d3b; border: none; color: white; padding: 5px 14px; border-radius: 30px; cursor: pointer; }
+            pre { background: #0f1510; color: #e2f0da; padding: 16px 20px; overflow-x: auto; font-family: monospace; font-size: 0.85rem; }
+            .status-msg { text-align: center; padding: 8px 20px; color: #bc6f2e; background: #fff3e0; margin: 0 32px 16px; border-radius: 60px; display: none; }
+            .qa-section { background: #f4f2ea; margin: 0 32px 24px; border-radius: 20px; padding: 20px; display: none; }
+        .qa-section.visible { display: block; }
+            .qa-title { font-weight: 700; font-size: 1.1rem; color: #2a553a; margin-bottom: 16px; border-left: 4px solid #cd8d3a; padding-left: 14px; }
+            .question-item { margin-bottom: 18px; }
+            .question-text { font-weight: 700; color: #2c4b32; font-size: 0.9rem; margin-bottom: 6px; background: #e8e4d8; display: inline-block; padding: 3px 12px; border-radius: 30px; }
+            .answer-input { width: 100%; padding: 10px 14px; font-size: 0.9rem; border: 1.5px solid #cfd5c7; border-radius: 40px; background: white; resize: vertical; font-family: inherit; }
+        .answer-input:focus { border-color: #2e8b57; outline: none; box-shadow: 0 0 0 3px #cbe5d4; }
+            .sentence-hint { font-size: 0.65rem; color: #c53a1f; margin-top: 4px; margin-left: 10px; display: none; }
+        .sentence-hint.show { display: block; }
+            .stage-area { padding: 10px 32px 28px; display: flex; justify-content: center; }
+            footer { background: #f1efe7; padding: 16px 32px; text-align: center; font-size: 0.7rem; color: #6d6b5e; border-top: 1px solid #e0dbcd; }
+            .integrate-btn { background: #c97e2a; }
+            .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
+            .modal-content { background: white; max-width: 550px; width: 90%; max-height: 85vh; overflow-y: auto; border-radius: 28px; padding: 28px; }
+            .modal-content h3 { color: #2a553a; margin-bottom: 20px; }
+            .modal-content input { width: 100%; padding: 10px; margin: 8px 0 16px; border: 1.5px solid #ddd; border-radius: 40px; }
+            .modal-content input[type="file"] { padding: 8px; }
+            .modal-buttons { display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px; }
+            .modal-buttons button { padding: 8px 20px; border-radius: 40px; border: none; cursor: pointer; font-weight: 600; }
+            .submit-btn { background: #1f5e41; color: white; }
+            .cancel-btn { background: #ccc; }
+        .close-modal { float: right; font-size: 24px; cursor: pointer; }
+            
+            /* Hide coordinates section initially until undertaking is accepted */
+        .coordinates-wrapper {
+                display: none;
+            }
+        .coordinates-wrapper.active {
+                display: block;
+            }
+        </style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+<div class="container">
+        <div class="header">
+            <h1>🌍 EEZG 612 Env. Remote Sensing and GIS -Assignment-2 (10 Marks), GEE Code Generator </h1>
+        <p>Follow the instructions and it will generate a GEE code for you. Paste the final code in GEE code window and run it. Generate final report and submit.</p>
+            <p>To start, please read and accept the undertaking below. Then enter the coordinates in decimal degrees from the field photographs.</p>
+        </div>
+ 
+        <!-- Undertaking Section -->
+        <div class="undertaking-section" id="undertakingSection">
+            <div class="undertaking-title">
+                📋 Student Undertaking - Field Data Collection Protocol
+            </div>
+            <ul class="undertaking-list">
+                <li>
+                <input type="checkbox" id="undertaking1">
+                <label for="undertaking1">1. Photo is taken in GPSmap Camera app</label>
+            </li>
+                <li>
+                <input type="checkbox" id="undertaking2">
+                <label for="undertaking2">2. Photos are taken at the centre of the field</label>
+            </li>
+                <li>
+                <input type="checkbox" id="undertaking3">
+                <label for="undertaking3">3. Photos are not taken on the road</label>
+            </li>
+                <li>
+                <input type="checkbox" id="undertaking4">
+                <label for="undertaking4">4. Photos are not taken while sitting in a moving vehicle</label>
+            </li>
+                <li>
+                <input type="checkbox" id="undertaking5">
+                <label for="undertaking5">5. Photos are not taken inside the building.</label>
+            </li>
+                <li>
+                <input type="checkbox" id="undertaking6">
+                <label for="undertaking6">6.  There is a minimum distance of 100 m between the photos.</label>
+            </li>
+            </ul>
+            <button id="acceptUndertakingBtn" class="undertaking-btn" disabled>Accept Undertaking & Proceed</button>
+            <div id="undertakingStatus" class="undertaking-status">Please check all boxes to proceed.</div>
+        </div>
+ 
+        <!-- Coordinates Section (Initially Hidden) -->
+        <div id="coordinatesWrapper" class="coordinates-wrapper">
+            <div class="inputs-row">
+                <div class="card veg-card">
+                <div class="card-title">🌿 Vegetation</div>
+                <div class="input-group"><label>Latitude</label><div class="coord-box"><input type="text" id="vegLat" value="48.8566"><span class="unit">°</span></div><div id="vegLatError" class="error-msg"></div></div>
+                <div class="input-group"><label>Longitude</label><div class="coord-box"><input type="text" id="vegLng" value="2.3522"><span class="unit">°</span></div><div id="vegLngError" class="error-msg"></div></div>
+            </div>
+                <div class="card open-card">
+                    <div class="card-title">🏜️ Open Area</div>
+                <div class="input-group"><label>Latitude</label><div class="coord-box"><input type="text" id="openLat" value="40.7128"><span class="unit">°</span></div><div id="openLatError" class="error-msg"></div></div>
+                <div class="input-group"><label>Longitude</label><div class="coord-box"><input type="text" id="openLng" value="-74.0060"><span class="unit">°</span></div><div id="openLngError" class="error-msg"></div></div>
+                </div>
+            </div>
+ 
+            <div class="generate-area"><button id="generateGeometryBtn" class="gen-btn disabled" disabled>📐 1. Code Snippet: Generate Geometry Code</button></div>
+            <div id="statusMsg" class="status-msg"></div>
+            <div id="geometryCodeSection" style="display:none;"><div class="code-output"><div class="output-header"><label>Geometry Code</label><button id="copyGeometryBtn" class="copy-btn">Copy</button></div><pre id="geometryCodeBlock"></pre></div></div>
+ 
+            <div id="firstQuestionsSection" class="qa-section"><div class="qa-title">Questions (Geometry) - Answer in ONE sentence only</div>
+                <div class="question-item"><div class="question-text">Q1. In which language is this code written?</div><textarea class="answer-input" id="answer1" rows="2" maxlength="500"></textarea><div class="sentence-hint" id="hint1">⚠️ Please write only ONE sentence (no periods except the final one)</div></div>
+                <div class="question-item"><div class="question-text">Q2. What is meant by ee.Geometry?</div><textarea class="answer-input" id="answer2" rows="2" maxlength="500"></textarea><div class="sentence-hint" id="hint2">⚠️ Please write only ONE sentence</div></div>
+                <div class="question-item"><div class="question-text">Q3. Which is the x-coordinate: latitude or longitude?</div><textarea class="answer-input" id="answer3" rows="2" maxlength="500"></textarea><div class="sentence-hint" id="hint3">⚠️ Please write only ONE sentence</div></div>
+            </div>
+ 
+            <div id="secondStageArea" class="stage-area" style="display:none;"><button id="generateCenteringBtn" class="gen-btn">🗺️ 2.Code Snippet: Generate Map Centering Code</button></div>
+            <div id="centeringCodeSection" style="display:none;"><div class="code-output"><div class="output-header"><label>Map Centering</label><button id="copyCenteringBtn" class="copy-btn">Copy</button></div><pre id="centeringCodeBlock"></pre></div></div>
+ 
+            <div id="secondQuestionsSection" class="qa-section"><div class="qa-title">Questions (Map Centering) - Answer in ONE sentence only</div>
+                <div class="question-item"><div class="question-text">Q4. What is Map.center?</div><textarea class="answer-input" id="answerMapCenter" rows="2" maxlength="500"></textarea><div class="sentence-hint" id="hint4">⚠️ One sentence only</div></div>
+                <div class="question-item"><div class="question-text">Q5. What is this value 14?</div><textarea class="answer-input" id="answerZoomValue" rows="2" maxlength="500"></textarea><div class="sentence-hint" id="hint5">⚠️ One sentence only</div></div>
+            </div>
+ 
+            <div id="thirdStageArea" class="stage-area" style="display:none;"><button id="generateFeaturesBtn" class="gen-btn">🔄 3. Code Snippet: Convert Points to Features</button></div>
+            <div id="featuresCodeSection" style="display:none;"><div class="code-output"><div class="output-header"><label>Feature Code</label><button id="copyFeaturesBtn" class="copy-btn">Copy</button></div><pre id="featuresCodeBlock"></pre></div></div>
+ 
+            <div id="thirdQuestionsSection" class="qa-section"><div class="qa-title">Questions (Feature Conversion) - Answer in ONE sentence only</div>
+                <div class="question-item"><div class="question-text">Q6. What is ee.Feature?</div><textarea class="answer-input" id="answerFeature" rows="2" maxlength="500"></textarea><div class="sentence-hint" id="hint6">⚠️ One sentence only</div></div>
+                <div class="question-item"><div class="question-text">Q7. Why do we need to convert these 2 geometries to features?</div><textarea class="answer-input" id="answerWhyFeatures" rows="2" maxlength="500"></textarea><div class="sentence-hint" id="hint7">⚠️ One sentence only</div></div>
+            </div>
+ 
+            <div id="fourthStageArea" class="stage-area" style="display:none;"><button id="generateFeatureCollectionBtn" class="gen-btn">📚 4.Code Snippet: Merge into FeatureCollection</button></div>
+            <div id="featureCollectionCodeSection" style="display:none;"><div class="code-output"><div class="output-header"><label>FeatureCollection</label><button id="copyFeatureCollectionBtn" class="copy-btn">Copy</button></div><pre id="featureCollectionCodeBlock"></pre></div></div>
+ 
+            <div id="fourthQuestionsSection" class="qa-section"><div class="qa-title">Questions (FeatureCollection) - Answer in ONE sentence only</div>
+                <div class="question-item"><div class="question-text">Q8. What does ee.FeatureCollection do?</div><textarea class="answer-input" id="answerFeatureCollection" rows="2" maxlength="500"></textarea><div class="sentence-hint" id="hint8">⚠️ One sentence only</div></div>
+            </div>
+ 
+            <div id="fifthStageArea" class="stage-area" style="display:none;"><button id="generateLandsatBtn" class="gen-btn">🛰️ 5. Code Snippet: Load Landsat-9 TOA</button></div>
+            <div id="landsatCodeSection" style="display:none;"><div class="code-output"><div class="output-header"><label>Landsat-9 TOA</label><button id="copyLandsatBtn" class="copy-btn">Copy</button></div><pre id="landsatCodeBlock"></pre></div></div>
+ 
+            <div id="fifthQuestionsSection" class="qa-section"><div class="qa-title">Questions (Landsat) - Answer in ONE sentence only</div>
+                <div class="question-item"><div class="question-text">Q9. What does 'ee.ImageCollection' do?</div><textarea class="answer-input" id="answerImageCollection" rows="2" maxlength="500"></textarea><div class="sentence-hint" id="hint9">⚠️ One sentence only</div></div>
+                <div class="question-item"><div class="question-text">Q10. What does '.filterBounds(samples)' do?</div><textarea class="answer-input" id="answerFilterBounds" rows="2" maxlength="500"></textarea><div class="sentence-hint" id="hint10">⚠️ One sentence only</div></div>
+                <div class="question-item"><div class="question-text">Q11. In '.filter(ee.Filter.lt('CLOUD_COVER', 10))', what does the value 10 indicate?</div><textarea class="answer-input" id="answerCloudValue" rows="2" maxlength="500"></textarea><div class="sentence-hint" id="hint11">⚠️ One sentence only</div></div>
+                <div class="question-item"><div class="question-text">Q12. What does '.sort('CLOUD_COVER')' do?</div><textarea class="answer-input" id="answerSort" rows="2" maxlength="500"></textarea><div class="sentence-hint" id="hint12">⚠️ One sentence only</div></div>
+                <div class="question-item"><div class="question-text">Q13. What does 'first();' command do?</div><textarea class="answer-input" id="answerFirst" rows="2" maxlength="500"></textarea><div class="sentence-hint" id="hint13">⚠️ One sentence only</div></div>
+            </div>
+ 
+            <div id="sixthStageArea" class="stage-area" style="display:none;"><button id="generatePrintBtn" class="gen-btn">🖨️ 6. Code Snippet: Print the details of the Selected Image</button></div>
+            <div id="printCodeSection" style="display:none;"><div class="code-output"><div class="output-header"><label>Print Command</label><button id="copyPrintBtn" class="copy-btn">Copy</button></div><pre id="printCodeBlock"></pre></div></div>
+ 
+            <div id="sixthQuestionsSection" class="qa-section"><div class="qa-title">Questions (Print) - Answer in ONE sentence only</div>
+                <div class="question-item"><div class="question-text">Q14. After running the commands, the details of how many satellite image products are displayed in the console?</div><textarea class="answer-input" id="answerPrintCount" rows="2" maxlength="500"></textarea><div class="sentence-hint" id="hint14">⚠️ One sentence only</div></div>
+            </div>
+ 
+            <div id="seventhStageArea" class="stage-area" style="display:none;"><button id="generateFalseColorBtn" class="gen-btn">🎨 7. Code Snippet: Display False Color Composite</button></div>
+            <div id="falseColorCodeSection" style="display:none;"><div class="code-output"><div class="output-header"><label>False Color</label><button id="copyFalseColorBtn" class="copy-btn">Copy</button></div><pre id="falseColorCodeBlock"></pre></div></div>
+ 
+            <div id="seventhQuestionsSection" class="qa-section"><div class="qa-title">Questions (False Color) - Answer in ONE sentence only</div>
+                <div class="question-item"><div class="question-text">Q15. What does Map.addLayer do?</div><textarea class="answer-input" id="answerAddLayer" rows="2" maxlength="500"></textarea><div class="sentence-hint" id="hint15">⚠️ One sentence only</div></div>
+                <div class="question-item"><div class="question-text">Q16. B3 (Green) and B4 (Red) are given. What is B5?</div><textarea class="answer-input" id="answerB5" rows="2" maxlength="500"></textarea><div class="sentence-hint" id="hint16">⚠️ One sentence only</div></div>
+                <div class="question-item"><div class="question-text">Q17. What do these values 0 and 0.3 indicate?</div><textarea class="answer-input" id="answerMinMax" rows="2" maxlength="500"></textarea><div class="sentence-hint" id="hint17">⚠️ One sentence only</div></div>
+            </div>
+ 
+            <div id="eighthStageArea" class="stage-area" style="display:none;"><button id="generatePointsBtn" class="gen-btn">📍 8. Code Snippet: Add Points to Map</button></div>
+            <div id="pointsCodeSection" style="display:none;"><div class="code-output"><div class="output-header"><label>Points</label><button id="copyPointsBtn" class="copy-btn">Copy</button></div><pre id="pointsCodeBlock"></pre></div></div>
+ 
+            <div id="eighthQuestionsSection" class="qa-section"><div class="qa-title">Questions (Points) - Answer in ONE sentence only</div>
+                <div class="question-item"><div class="question-text">Q18. How many points will be displayed?</div><textarea class="answer-input" id="answerPointsCount" rows="2" maxlength="500"></textarea><div class="sentence-hint" id="hint18">⚠️ One sentence only</div></div>
+            </div>
+ 
+            <div id="ninthStageArea" class="stage-area" style="display:none;"><button id="generateBandsBtn" class="gen-btn">🎚️ 9.Code Snippet: Select Bands 1-7</button></div>
+            <div id="bandsCodeSection" style="display:none;"><div class="code-output"><div class="output-header"><label>Band Selection</label><button id="copyBandsBtn" class="copy-btn">Copy</button></div><pre id="bandsCodeBlock"></pre></div></div>
+ 
+            <div id="ninthQuestionsSection" class="qa-section"><div class="qa-title">Questions (Bands) - Answer in ONE sentence only</div>
+                <div class="question-item"><div class="question-text">Q19. What are the actual spectral names of the bands like blue, green,..... for Landsat 9 bands B1 through B7?</div><textarea class="answer-input" id="answerBandNames" rows="3" maxlength="500"></textarea><div class="sentence-hint" id="hint19">⚠️ One sentence only (list all 7 bands in one sentence)</div></div>
+            </div>
+ 
+            <div id="tenthStageArea" class="stage-area" style="display:none;"><button id="generateWavelengthsBtn" class="gen-btn">📊 10. Code Snippet: Display Wavelengths</button></div>
+            <div id="wavelengthsCodeSection" style="display:none;"><div class="code-output"><div class="output-header"><label>Wavelengths</label><button id="copyWavelengthsBtn" class="copy-btn">Copy</button></div><pre id="wavelengthsCodeBlock"></pre></div></div>
+ 
+            <div id="tenthQuestionsSection" class="qa-section"><div class="qa-title">Questions (Spectral Curve) - Answer in ONE sentence only</div>
+                <div class="question-item"><div class="question-text">Q20. What is the parameter at x-axis of the spectral reflectance curve?</div><textarea class="answer-input" id="answerXAxis" rows="2" maxlength="500"></textarea><div class="sentence-hint" id="hint20">⚠️ One sentence only</div></div>
+                <div class="question-item"><div class="question-text">Q21. What is the parameter at y-axis of the spectral reflectance curve?</div><textarea class="answer-input" id="answerYAxis" rows="2" maxlength="500"></textarea><div class="sentence-hint" id="hint21">⚠️ One sentence only</div></div>
+            </div>
+ 
+            <div id="eleventhStageArea" class="stage-area" style="display:none;"><button id="generateChartStylesBtn" class="gen-btn">📈 11. Code Snippet: Define Chart Styles</button></div>
+            <div id="chartStylesCodeSection" style="display:none;"><div class="code-output"><div class="output-header"><label>Chart Styles</label><button id="copyChartStylesBtn" class="copy-btn">Copy</button></div><pre id="chartStylesCodeBlock"></pre></div></div>
+ 
+            <div id="eleventhQuestionsSection" class="qa-section"><div class="qa-title">Questions (Chart Styles) - Answer in ONE sentence only</div>
+                <div class="question-item"><div class="question-text">Q22. Whether spectral reflectance curve is a continuous plot or discrete plot?</div><textarea class="answer-input" id="answerPlotType" rows="2" maxlength="500"></textarea><div class="sentence-hint" id="hint22">⚠️ One sentence only</div></div>
+            </div>
+ 
+            <div id="twelfthStageArea" class="stage-area" style="display:none;"><button id="generatePlotBtn" class="gen-btn">📉 12. Code Snippet: Plot Curve</button></div>
+            <div id="plotCodeSection" style="display:none;"><div class="code-output"><div class="output-header"><label>Plot Code</label><button id="copyPlotBtn" class="copy-btn">Copy</button></div><pre id="plotCodeBlock"></pre></div></div>
+ 
+            <div id="twelfthQuestionsSection" class="qa-section"><div class="qa-title">Questions (Plotting) - Answer in ONE sentence only</div>
+                <div class="question-item"><div class="question-text">Q23. What is 'ui' in ui.Chart?</div><textarea class="answer-input" id="answerUi" rows="2" maxlength="500"></textarea><div class="sentence-hint" id="hint23">⚠️ One sentence only</div></div>
+            </div>
+ 
+            <div id="integrateStageArea" class="stage-area" style="display:none;"><button id="integrateBtn" class="gen-btn integrate-btn">🔗 13. Integrate All Code: This will generate a complete script. Paste the script in https://code.earthengine.google.com/ and run to get the spectral reflectance curve.</button></div>
+            <div id="integratedCodeSection" style="display:none;"><div class="code-output"><div class="output-header"><label>Complete Script</label><button id="copyIntegratedBtn" class="copy-btn">Copy</button></div><pre id="integratedCodeBlock"></pre></div></div>
+ 
+            <div id="reportStageArea" class="stage-area" style="display:none;"><button id="generateReportBtn" class="gen-btn" style="background:#c97e2a;">📄 14. Generate Assignment Report</button></div>
+        </div>
+ 
+        <footer>Each answer must be written in ONE sentence only. Multiple periods will trigger a warning.</footer>
+</div>
+ 
+<div id="reportModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>📋 Assignment Report Details</h3>
+        <label>Student Name *</label>
+            <input type="text" id="studentName" placeholder="Full name">
+        <label>Student ID *</label>
+            <input type="text" id="studentId" placeholder="ID number">
+        <label>Phone (Optional)</label>
+            <input type="text" id="studentPhone">
+        <label>Field Photo 1 (Vegetation)</label>
+            <input type="file" id="reportPhoto1" accept="image/*">
+        <label>Field Photo 2 (Open Area)</label>
+            <input type="file" id="reportPhoto2" accept="image/*">
+        <label>Spectral Curve Screenshot</label>
+            <input type="file" id="reportSpectral" accept="image/*">
+        <label>GEE Code Link (Watch tutorial video to create the code link) *</label>
+            <input type="url" id="geeCodeLink" placeholder="https://code.earthengine.google.com/...">
+            <div class="modal-buttons">
+                <button class="cancel-btn" id="cancelModalBtn">Cancel</button>
+                <button class="submit-btn" id="submitReportBtn">Generate Report</button>
+            </div>
+        </div>
+</div>
+ 
+<script>
+        // Undertaking Checkbox Logic
+        const checkboxes = [
+        document.getElementById('undertaking1'),
+            document.getElementById('undertaking2'),
+        document.getElementById('undertaking3'),
+        document.getElementById('undertaking4'),
+        document.getElementById('undertaking5'),
+        document.getElementById('undertaking6')
+        ];
+        const acceptBtn = document.getElementById('acceptUndertakingBtn');
+        const undertakingStatus = document.getElementById('undertakingStatus');
+        const coordinatesWrapper = document.getElementById('coordinatesWrapper');
+ 
+        function checkAllUndertakings() {
+            const allChecked = checkboxes.every(cb => cb.checked);
+        acceptBtn.disabled = !allChecked;
+            if (allChecked) {
+            undertakingStatus.style.display = 'none';
+            } else {
+            undertakingStatus.style.display = 'block';
+            }
+        }
+ 
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', checkAllUndertakings);
+        });
+ 
+    acceptBtn.addEventListener('click', () => {
+            if (checkboxes.every(cb => cb.checked)) {
+            coordinatesWrapper.classList.add('active');
+            document.getElementById('undertakingSection').style.display = 'none';
+                // Initialize the rest of the application
+                init();
+            }
+        });
+ 
+        // DOM elements for the main application
+        const vegLatInput = document.getElementById('vegLat'), vegLngInput = document.getElementById('vegLng');
+        const openLatInput = document.getElementById('openLat'), openLngInput = document.getElementById('openLng');
+        const vegLatError = document.getElementById('vegLatError'), vegLngError = document.getElementById('vegLngError');
+        const openLatError = document.getElementById('openLatError'), openLngError = document.getElementById('openLngError');
+        const generateGeometryBtn = document.getElementById('generateGeometryBtn');
+        const geometryCodeSection = document.getElementById('geometryCodeSection'), geometryCodeBlock = document.getElementById('geometryCodeBlock');
+        const copyGeometryBtn = document.getElementById('copyGeometryBtn');
+        const statusMsgDiv = document.getElementById('statusMsg');
+        const firstQuestionsSection = document.getElementById('firstQuestionsSection');
+        const secondStageArea = document.getElementById('secondStageArea');
+        const generateCenteringBtn = document.getElementById('generateCenteringBtn');
+    const centeringCodeSection = document.getElementById('centeringCodeSection'), centeringCodeBlock = document.getElementById('centeringCodeBlock');
+        const copyCenteringBtn = document.getElementById('copyCenteringBtn');
+        const secondQuestionsSection = document.getElementById('secondQuestionsSection');
+        const thirdStageArea = document.getElementById('thirdStageArea');
+        const generateFeaturesBtn = document.getElementById('generateFeaturesBtn');
+        const featuresCodeSection = document.getElementById('featuresCodeSection'), featuresCodeBlock = document.getElementById('featuresCodeBlock');
+        const copyFeaturesBtn = document.getElementById('copyFeaturesBtn');
+        const thirdQuestionsSection = document.getElementById('thirdQuestionsSection');
+        const fourthStageArea = document.getElementById('fourthStageArea');
+        const generateFeatureCollectionBtn = document.getElementById('generateFeatureCollectionBtn');
+        const featureCollectionCodeSection = document.getElementById('featureCollectionCodeSection');
+        const featureCollectionCodeBlock = document.getElementById('featureCollectionCodeBlock');
+        const copyFeatureCollectionBtn = document.getElementById('copyFeatureCollectionBtn');
+        const fourthQuestionsSection = document.getElementById('fourthQuestionsSection');
+        const fifthStageArea = document.getElementById('fifthStageArea');
+        const generateLandsatBtn = document.getElementById('generateLandsatBtn');
+        const landsatCodeSection = document.getElementById('landsatCodeSection');
+        const landsatCodeBlock = document.getElementById('landsatCodeBlock');
+        const copyLandsatBtn = document.getElementById('copyLandsatBtn');
+        const fifthQuestionsSection = document.getElementById('fifthQuestionsSection');
+        const sixthStageArea = document.getElementById('sixthStageArea');
+        const generatePrintBtn = document.getElementById('generatePrintBtn');
+        const printCodeSection = document.getElementById('printCodeSection');
+        const printCodeBlock = document.getElementById('printCodeBlock');
+        const copyPrintBtn = document.getElementById('copyPrintBtn');
+        const sixthQuestionsSection = document.getElementById('sixthQuestionsSection');
+        const seventhStageArea = document.getElementById('seventhStageArea');
+        const generateFalseColorBtn = document.getElementById('generateFalseColorBtn');
+        const falseColorCodeSection = document.getElementById('falseColorCodeSection');
+        const falseColorCodeBlock = document.getElementById('falseColorCodeBlock');
+        const copyFalseColorBtn = document.getElementById('copyFalseColorBtn');
+        const seventhQuestionsSection = document.getElementById('seventhQuestionsSection');
+        const eighthStageArea = document.getElementById('eighthStageArea');
+        const generatePointsBtn = document.getElementById('generatePointsBtn');
+        const pointsCodeSection = document.getElementById('pointsCodeSection');
+        const pointsCodeBlock = document.getElementById('pointsCodeBlock');
+        const copyPointsBtn = document.getElementById('copyPointsBtn');
+        const eighthQuestionsSection = document.getElementById('eighthQuestionsSection');
+        const ninthStageArea = document.getElementById('ninthStageArea');
+        const generateBandsBtn = document.getElementById('generateBandsBtn');
+        const bandsCodeSection = document.getElementById('bandsCodeSection');
+        const bandsCodeBlock = document.getElementById('bandsCodeBlock');
+        const copyBandsBtn = document.getElementById('copyBandsBtn');
+        const ninthQuestionsSection = document.getElementById('ninthQuestionsSection');
+        const tenthStageArea = document.getElementById('tenthStageArea');
+        const generateWavelengthsBtn = document.getElementById('generateWavelengthsBtn');
+        const wavelengthsCodeSection = document.getElementById('wavelengthsCodeSection');
+        const wavelengthsCodeBlock = document.getElementById('wavelengthsCodeBlock');
+        const copyWavelengthsBtn = document.getElementById('copyWavelengthsBtn');
+        const tenthQuestionsSection = document.getElementById('tenthQuestionsSection');
+        const eleventhStageArea = document.getElementById('eleventhStageArea');
+        const generateChartStylesBtn = document.getElementById('generateChartStylesBtn');
+        const chartStylesCodeSection = document.getElementById('chartStylesCodeSection');
+        const chartStylesCodeBlock = document.getElementById('chartStylesCodeBlock');
+        const copyChartStylesBtn = document.getElementById('copyChartStylesBtn');
+        const eleventhQuestionsSection = document.getElementById('eleventhQuestionsSection');
+        const twelfthStageArea = document.getElementById('twelfthStageArea');
+        const generatePlotBtn = document.getElementById('generatePlotBtn');
+        const plotCodeSection = document.getElementById('plotCodeSection');
+        const plotCodeBlock = document.getElementById('plotCodeBlock');
+        const copyPlotBtn = document.getElementById('copyPlotBtn');
+        const twelfthQuestionsSection = document.getElementById('twelfthQuestionsSection');
+        const integrateStageArea = document.getElementById('integrateStageArea');
+        const integrateBtn = document.getElementById('integrateBtn');
+        const integratedCodeSection = document.getElementById('integratedCodeSection');
+        const integratedCodeBlock = document.getElementById('integratedCodeBlock');
+        const copyIntegratedBtn = document.getElementById('copyIntegratedBtn');
+        const reportStageArea = document.getElementById('reportStageArea');
+        const generateReportBtn = document.getElementById('generateReportBtn');
+ 
+        // Answer inputs array
+        const answerInputs = [
+        document.getElementById('answer1'), document.getElementById('answer2'), document.getElementById('answer3'),
+        document.getElementById('answerMapCenter'), document.getElementById('answerZoomValue'),
+        document.getElementById('answerFeature'), document.getElementById('answerWhyFeatures'),
+        document.getElementById('answerFeatureCollection'),
+        document.getElementById('answerImageCollection'), document.getElementById('answerFilterBounds'),
+        document.getElementById('answerCloudValue'), document.getElementById('answerSort'), document.getElementById('answerFirst'),
+        document.getElementById('answerPrintCount'),
+        document.getElementById('answerAddLayer'), document.getElementById('answerB5'), document.getElementById('answerMinMax'),
+        document.getElementById('answerPointsCount'),
+        document.getElementById('answerBandNames'),
+        document.getElementById('answerXAxis'), document.getElementById('answerYAxis'),
+        document.getElementById('answerPlotType'),
+        document.getElementById('answerUi')
+        ];
+        
+        const hintElements = [];
+        for(let i = 1; i <= 23; i++) hintElements.push(document.getElementById(`hint${i}`));
+ 
+        // Full question texts for report
+        const fullQuestions = [
+            "Q1. In which language is this code written?",
+            "Q2. What is meant by ee.Geometry?",
+            "Q3. Which is the x-coordinate: latitude or longitude?",
+            "Q4. What is Map.center?",
+            "Q5. What is this value 14?",
+            "Q6. What is ee.Feature?",
+            "Q7. Why do we need to convert these 2 geometries to features?",
+            "Q8. What does ee.FeatureCollection do?",
+            "Q9. What does 'ee.ImageCollection' do?",
+            "Q10. What does '.filterBounds(samples)' do?",
+            "Q11. In '.filter(ee.Filter.lt('CLOUD_COVER', 10))', what does the value 10 indicate?",
+            "Q12. What does '.sort('CLOUD_COVER')' do?",
+            "Q13. What does 'first();' command do?",
+            "Q14. After running the commands, the details of how many satellite image products are displayed in the console?",
+            "Q15. What does Map.addLayer do?",
+            "Q16. B3 (Green) and B4 (Red) are given. What is B5?",
+            "Q17. What do these values 0 and 0.3 indicate?",
+            "Q18. How many points will be displayed?",
+            "Q19. What are the actual spectral names of the bands like blue, green, red, NIR, SWIR1, SWIR2 for Landsat 9 bands B1 through B7?",
+            "Q20. What is the parameter at x-axis of the spectral reflectance curve?",
+            "Q21. What is the parameter at y-axis of the spectral reflectance curve?",
+            "Q22. Whether spectral reflectance curve is a continuous plot or discrete plot?",
+            "Q23. What is 'ui' in ui.Chart?"
+        ];
+ 
+        function isSingleSentence(text) {
+        if(!text.trim()) return true;
+            const periods = (text.match(/\./g) || []).length;
+            return periods <= 1;
+        }
+ 
+        function validateAllAnswers() {
+            let allValid = true;
+            for(let i = 0; i < answerInputs.length; i++) {
+                const answer = answerInputs[i].value.trim();
+                if(answer && !isSingleSentence(answer)) {
+                if(hintElements[i]) hintElements[i].classList.add('show');
+                allValid = false;
+                } else {
+                if(hintElements[i]) hintElements[i].classList.remove('show');
+                }
+            }
+            return allValid;
+        }
+ 
+        function updateReportButton() {
+            const allAnswered = answerInputs.every(input => input.value.trim() !== "");
+            const allSingleSentence = validateAllAnswers();
+            if(allAnswered && allSingleSentence && integratedCodeSection.style.display === 'block') {
+            reportStageArea.style.display = 'flex';
+            } else {
+            reportStageArea.style.display = 'none';
+            }
+        }
+ 
+        // Add validation listeners
+    answerInputs.forEach((input, idx) => {
+        input.addEventListener('input', () => {
+            if(input.value.trim() && !isSingleSentence(input.value)) {
+                if(hintElements[idx]) hintElements[idx].classList.add('show');
+                } else {
+                if(hintElements[idx]) hintElements[idx].classList.remove('show');
+            }
+            updateReportButton();
+            });
+        });
+ 
+        function validateLatitude(v, e) { let n = Number(v); if(isNaN(n) || n<-90 || n>90) { e.innerText="Invalid (-90 to 90)"; e.style.display='block'; return null; } e.style.display='none'; return n; }
+        function validateLongitude(v, e) { let n = Number(v); if(isNaN(n) || n<-180 || n>180) { e.innerText="Invalid (-180 to 180)"; e.style.display='block'; return null; } e.style.display='none'; return n; }
+        function getCoords() {
+            let vLat = validateLatitude(vegLatInput.value, vegLatError);
+            let vLng = validateLongitude(vegLngInput.value, vegLngError);
+            let oLat = validateLatitude(openLatInput.value, openLatError);
+            let oLng = validateLongitude(openLngInput.value, openLngError);
+            if(vLat===null || vLng===null || oLat===null || oLng===null) return null;
+            return { veg: { lat: vLat, lng: vLng }, open: { lat: oLat, lng: oLng } };
+        }
+        function updateGeometryBtn() { let c = getCoords(); generateGeometryBtn.disabled = !c; if(c) generateGeometryBtn.classList.remove('disabled'); else generateGeometryBtn.classList.add('disabled'); }
+        function generateGeometryCode() { let c = getCoords(); if(!c) return null; return `var vegetation = ee.Geometry.Point([${c.veg.lng.toFixed(6)}, ${c.veg.lat.toFixed(6)}]);\nvar soil = ee.Geometry.Point([${c.open.lng.toFixed(6)}, ${c.open.lat.toFixed(6)}]);`; }
+        function displayGeometryCode() { let code = generateGeometryCode(); if(!code) return; geometryCodeBlock.innerText = code; geometryCodeSection.style.display = 'block'; if(!firstQuestionsSection.classList.contains('visible')) firstQuestionsSection.classList.add('visible'); }
+        function areFirstFilled() { return answerInputs[0].value.trim() && answerInputs[1].value.trim() && answerInputs[2].value.trim(); }
+        function updateSecond() { if(firstQuestionsSection.classList.contains('visible') && areFirstFilled() && validateAllAnswers()) secondStageArea.style.display = 'flex'; else secondStageArea.style.display = 'none'; }
+    function generateCenteringCode() { return `Map.centerObject(vegetation, 14);`; }
+        function displayCenteringCode() { centeringCodeBlock.innerText = generateCenteringCode(); centeringCodeSection.style.display = 'block'; if(!secondQuestionsSection.classList.contains('visible')) secondQuestionsSection.classList.add('visible'); }
+        function areSecondFilled() { return answerInputs[3].value.trim() && answerInputs[4].value.trim(); }
+        function updateThird() { if(secondQuestionsSection.classList.contains('visible') && areSecondFilled() && validateAllAnswers()) thirdStageArea.style.display = 'flex'; else thirdStageArea.style.display = 'none'; }
+        function generateFeaturesCode() { return `var vegetationFeature = ee.Feature(vegetation, {label: 'vegetation'});\nvar soilFeature = ee.Feature(soil, {label: 'soil'});`; }
+        function displayFeaturesCode() { featuresCodeBlock.innerText = generateFeaturesCode(); featuresCodeSection.style.display = 'block'; if(!thirdQuestionsSection.classList.contains('visible')) thirdQuestionsSection.classList.add('visible'); }
+        function areThirdFilled() { return answerInputs[5].value.trim() && answerInputs[6].value.trim(); }
+        function updateFourth() { if(thirdQuestionsSection.classList.contains('visible') && areThirdFilled() && validateAllAnswers()) fourthStageArea.style.display = 'flex'; else fourthStageArea.style.display = 'none'; }
+        function generateFeatureCollectionCode() { return `var samples = ee.FeatureCollection([vegetationFeature, soilFeature]);`; }
+        function displayFeatureCollectionCode() { featureCollectionCodeBlock.innerText = generateFeatureCollectionCode(); featureCollectionCodeSection.style.display = 'block'; if(!fourthQuestionsSection.classList.contains('visible')) fourthQuestionsSection.classList.add('visible'); }
+        function areFourthFilled() { return answerInputs[7].value.trim(); }
+        function updateFifth() { if(fourthQuestionsSection.classList.contains('visible') && areFourthFilled() && validateAllAnswers()) fifthStageArea.style.display = 'flex'; else fifthStageArea.style.display = 'none'; }
+        function generateLandsatCode() { return `var l9 = ee.ImageCollection("LANDSAT/LC09/C02/T1_TOA")\n  .filterBounds(samples)\n  .filterDate('2023-01-01', '2023-03-31')\n  .filter(ee.Filter.lt('CLOUD_COVER', 10))\n  .sort('CLOUD_COVER')\n  .first();`; }
+        function displayLandsatCode() { landsatCodeBlock.innerText = generateLandsatCode(); landsatCodeSection.style.display = 'block'; if(!fifthQuestionsSection.classList.contains('visible')) fifthQuestionsSection.classList.add('visible'); }
+        function areFifthFilled() { return answerInputs[8].value.trim() && answerInputs[9].value.trim() && answerInputs[10].value.trim() && answerInputs[11].value.trim() && answerInputs[12].value.trim(); }
+        function updateSixth() { if(fifthQuestionsSection.classList.contains('visible') && areFifthFilled() && validateAllAnswers()) sixthStageArea.style.display = 'flex'; else sixthStageArea.style.display = 'none'; }
+        function generatePrintCode() { return `print(l9);`; }
+        function displayPrintCode() { printCodeBlock.innerText = generatePrintCode(); printCodeSection.style.display = 'block'; if(!sixthQuestionsSection.classList.contains('visible')) sixthQuestionsSection.classList.add('visible'); }
+        function areSixthFilled() { return answerInputs[13].value.trim(); }
+        function updateSeventh() { if(sixthQuestionsSection.classList.contains('visible') && areSixthFilled() && validateAllAnswers()) seventhStageArea.style.display = 'flex'; else seventhStageArea.style.display = 'none'; }
+        function generateFalseColorCode() { return `Map.addLayer(l9, {bands: ['B5', 'B4', 'B3'], min: 0, max: 0.3}, 'False Colour Image');`; }
+        function displayFalseColorCode() { falseColorCodeBlock.innerText = generateFalseColorCode(); falseColorCodeSection.style.display = 'block'; if(!seventhQuestionsSection.classList.contains('visible')) seventhQuestionsSection.classList.add('visible'); }
+        function areSeventhFilled() { return answerInputs[14].value.trim() && answerInputs[15].value.trim() && answerInputs[16].value.trim(); }
+        function updateEighth() { if(seventhQuestionsSection.classList.contains('visible') && areSeventhFilled() && validateAllAnswers()) eighthStageArea.style.display = 'flex'; else eighthStageArea.style.display = 'none'; }
+        function generatePointsCode() { return `Map.addLayer(vegetationFeature, {color: 'blue'}, 'Vegetation Point');\nMap.addLayer(soilFeature, {color: 'green'}, 'Soil Point');`; }
+        function displayPointsCode() { pointsCodeBlock.innerText = generatePointsCode(); pointsCodeSection.style.display = 'block'; if(!eighthQuestionsSection.classList.contains('visible')) eighthQuestionsSection.classList.add('visible'); }
+        function areEighthFilled() { return answerInputs[17].value.trim(); }
+        function updateNinth() { if(eighthQuestionsSection.classList.contains('visible') && areEighthFilled() && validateAllAnswers()) ninthStageArea.style.display = 'flex'; else ninthStageArea.style.display = 'none'; }
+        function generateBandsCode() { return `var band_selected = l9.select(['B1','B2','B3','B4','B5','B6','B7']);`; }
+        function displayBandsCode() { bandsCodeBlock.innerText = generateBandsCode(); bandsCodeSection.style.display = 'block'; if(!ninthQuestionsSection.classList.contains('visible')) ninthQuestionsSection.classList.add('visible'); }
+        function areNinthFilled() { return answerInputs[18].value.trim(); }
+        function updateTenth() { if(ninthQuestionsSection.classList.contains('visible') && areNinthFilled() && validateAllAnswers()) tenthStageArea.style.display = 'flex'; else tenthStageArea.style.display = 'none'; }
+        function generateWavelengthsCode() { return `var wavelengths = [0.443, 0.482, 0.562, 0.655, 0.865, 1.609, 2.201];`; }
+        function displayWavelengthsCode() { wavelengthsCodeBlock.innerText = generateWavelengthsCode(); wavelengthsCodeSection.style.display = 'block'; if(!tenthQuestionsSection.classList.contains('visible')) tenthQuestionsSection.classList.add('visible'); }
+    function areTenthFilled() { return answerInputs[19].value.trim() && answerInputs[20].value.trim(); }
+        function updateEleventh() { if(tenthQuestionsSection.classList.contains('visible') && areTenthFilled() && validateAllAnswers()) eleventhStageArea.style.display = 'flex'; else eleventhStageArea.style.display = 'none'; }
+        function generateChartStylesCode() { return `var plotOptions = { title: 'Landsat-9 Surface Reflectance Spectra', hAxis: {title: 'Wavelength (micrometers)'}, vAxis: {title: 'Reflectance'}, lineWidth: 1, pointSize: 4 };`; }
+        function displayChartStylesCode() { chartStylesCodeBlock.innerText = generateChartStylesCode(); chartStylesCodeSection.style.display = 'block'; if(!eleventhQuestionsSection.classList.contains('visible')) eleventhQuestionsSection.classList.add('visible'); }
+        function areEleventhFilled() { return answerInputs[21].value.trim(); }
+        function updateTwelfth() { if(eleventhQuestionsSection.classList.contains('visible') && areEleventhFilled() && validateAllAnswers()) twelfthStageArea.style.display = 'flex'; else twelfthStageArea.style.display = 'none'; }
+        function generatePlotCode() { return `var Chart1 = ui.Chart.image.regions(band_selected, samples, ee.Reducer.mean(), 30, 'label', wavelengths).setChartType('ScatterChart').setOptions(plotOptions);\nprint(Chart1);`; }
+        function displayPlotCode() { plotCodeBlock.innerText = generatePlotCode(); plotCodeSection.style.display = 'block'; if(!twelfthQuestionsSection.classList.contains('visible')) twelfthQuestionsSection.classList.add('visible'); }
+        function areTwelfthFilled() { return answerInputs[22].value.trim(); }
+        function updateIntegrate() { if(twelfthQuestionsSection.classList.contains('visible') && areTwelfthFilled() && validateAllAnswers()) integrateStageArea.style.display = 'flex'; else integrateStageArea.style.display = 'none'; }
+        function generateIntegratedCode() { let c = getCoords(); if(!c) return ""; return `// Complete Earth Engine Script\nvar vegetation = ee.Geometry.Point([${c.veg.lng.toFixed(6)}, ${c.veg.lat.toFixed(6)}]);\nvar soil = ee.Geometry.Point([${c.open.lng.toFixed(6)}, ${c.open.lat.toFixed(6)}]);\nMap.centerObject(vegetation, 14);\nvar vegetationFeature = ee.Feature(vegetation, {label: 'vegetation'});\nvar soilFeature = ee.Feature(soil, {label: 'soil'});\nvar samples = ee.FeatureCollection([vegetationFeature, soilFeature]);\nvar l9 = ee.ImageCollection("LANDSAT/LC09/C02/T1_TOA").filterBounds(samples).filterDate('2023-01-01', '2023-03-31').filter(ee.Filter.lt('CLOUD_COVER', 10)).sort('CLOUD_COVER').first();\nprint(l9);\nMap.addLayer(l9, {bands: ['B5', 'B4', 'B3'], min: 0, max: 0.3}, 'False Colour Image');\nMap.addLayer(vegetationFeature, {color: 'blue'}, 'Vegetation Point');\nMap.addLayer(soilFeature, {color: 'green'}, 'Soil Point');\nvar band_selected = l9.select(['B1','B2','B3','B4','B5','B6','B7']);\nvar wavelengths = [0.443, 0.482, 0.562, 0.655, 0.865, 1.609, 2.201];\nvar plotOptions = {title: 'Landsat-9 Surface Reflectance Spectra', hAxis: {title: 'Wavelength (micrometers)'}, vAxis: {title: 'Reflectance'}, lineWidth: 1, pointSize: 4};\nvar Chart1 = ui.Chart.image.regions(band_selected, samples, ee.Reducer.mean(), 30, 'label', wavelengths).setChartType('ScatterChart').setOptions(plotOptions);\nprint(Chart1);`; }
+        function displayIntegratedCode() { integratedCodeBlock.innerText = generateIntegratedCode(); integratedCodeSection.style.display = 'block'; updateReportButton(); statusMsgDiv.innerText = '✅ Integrated!'; statusMsgDiv.style.display = 'block'; setTimeout(() => statusMsgDiv.style.display = 'none', 2000); }
+        async function copyCode(btn, codeEl) { let code = codeEl.innerText; if(code) { await navigator.clipboard.writeText(code); let orig = btn.innerText; btn.innerText = "Copied!"; setTimeout(() => btn.innerText = orig, 1500); } }
+        
+    copyGeometryBtn.onclick = () => copyCode(copyGeometryBtn, geometryCodeBlock);
+    copyCenteringBtn.onclick = () => copyCode(copyCenteringBtn, centeringCodeBlock);
+    copyFeaturesBtn.onclick = () => copyCode(copyFeaturesBtn, featuresCodeBlock);
+    copyFeatureCollectionBtn.onclick = () => copyCode(copyFeatureCollectionBtn, featureCollectionCodeBlock);
+    copyLandsatBtn.onclick = () => copyCode(copyLandsatBtn, landsatCodeBlock);
+    copyPrintBtn.onclick = () => copyCode(copyPrintBtn, printCodeBlock);
+    copyFalseColorBtn.onclick = () => copyCode(copyFalseColorBtn, falseColorCodeBlock);
+    copyPointsBtn.onclick = () => copyCode(copyPointsBtn, pointsCodeBlock);
+    copyBandsBtn.onclick = () => copyCode(copyBandsBtn, bandsCodeBlock);
+    copyWavelengthsBtn.onclick = () => copyCode(copyWavelengthsBtn, wavelengthsCodeBlock);
+    copyChartStylesBtn.onclick = () => copyCode(copyChartStylesBtn, chartStylesCodeBlock);
+    copyPlotBtn.onclick = () => copyCode(copyPlotBtn, plotCodeBlock);
+    copyIntegratedBtn.onclick = () => copyCode(copyIntegratedBtn, integratedCodeBlock);
+        
+        function attachEvents() {
+            [vegLatInput, vegLngInput, openLatInput, openLngInput].forEach(inp => {
+            inp.addEventListener('input', updateGeometryBtn);
+            inp.addEventListener('blur', () => { validateLatitude(vegLatInput.value, vegLatError); validateLongitude(vegLngInput.value, vegLngError); validateLatitude(openLatInput.value, openLatError); validateLongitude(openLngInput.value, openLngError); updateGeometryBtn(); });
+            });
+        answerInputs[0].oninput = updateSecond; answerInputs[1].oninput = updateSecond; answerInputs[2].oninput = updateSecond;
+        answerInputs[3].oninput = updateThird; answerInputs[4].oninput = updateThird;
+        answerInputs[5].oninput = updateFourth; answerInputs[6].oninput = updateFourth;
+        answerInputs[7].oninput = updateFifth;
+        answerInputs[8].oninput = updateSixth; answerInputs[9].oninput = updateSixth; answerInputs[10].oninput = updateSixth; answerInputs[11].oninput = updateSixth; answerInputs[12].oninput = updateSixth;
+        answerInputs[13].oninput = updateSeventh;
+        answerInputs[14].oninput = updateEighth; answerInputs[15].oninput = updateEighth; answerInputs[16].oninput = updateEighth;
+        answerInputs[17].oninput = updateNinth;
+        answerInputs[18].oninput = updateTenth;
+        answerInputs[19].oninput = updateEleventh; answerInputs[20].oninput = updateEleventh;
+        answerInputs[21].oninput = updateTwelfth;
+        answerInputs[22].oninput = updateIntegrate;
+        }
+        
+    generateGeometryBtn.onclick = () => { displayGeometryCode(); updateSecond(); };
+    generateCenteringBtn.onclick = () => { displayCenteringCode(); updateThird(); };
+    generateFeaturesBtn.onclick = () => { displayFeaturesCode(); updateFourth(); };
+    generateFeatureCollectionBtn.onclick = () => { displayFeatureCollectionCode(); updateFifth(); };
+    generateLandsatBtn.onclick = () => { displayLandsatCode(); updateSixth(); };
+    generatePrintBtn.onclick = () => { displayPrintCode(); updateSeventh(); };
+    generateFalseColorBtn.onclick = () => { displayFalseColorCode(); updateEighth(); };
+    generatePointsBtn.onclick = () => { displayPointsCode(); updateNinth(); };
+    generateBandsBtn.onclick = () => { displayBandsCode(); updateTenth(); };
+    generateWavelengthsBtn.onclick = () => { displayWavelengthsCode(); updateEleventh(); };
+    generateChartStylesBtn.onclick = () => { displayChartStylesCode(); updateTwelfth(); };
+    generatePlotBtn.onclick = () => { displayPlotCode(); updateIntegrate(); };
+    integrateBtn.onclick = () => { displayIntegratedCode(); };
+        
+        // Report Generation
+        const modal = document.getElementById('reportModal');
+        const closeModal = document.querySelector('.close-modal');
+        const cancelModal = document.getElementById('cancelModalBtn');
+        const submitReport = document.getElementById('submitReportBtn');
+        
+    generateReportBtn.onclick = () => {
+            const allSingleSentence = validateAllAnswers();
+        if(!allSingleSentence) {
+            alert("Please ensure all answers are written in ONE sentence only (no multiple periods).");
+                return;
+            }
+        modal.style.display = 'flex';
+        };
+        closeModal.onclick = () => { modal.style.display = 'none'; };
+    cancelModal.onclick = () => { modal.style.display = 'none'; };
+        window.onclick = (e) => { if(e.target === modal) modal.style.display = 'none'; };
+        
+        function escapeHtml(t) { if(!t) return ''; const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+        
+    submitReport.onclick = async () => {
+            const name = document.getElementById('studentName').value.trim();
+            const id = document.getElementById('studentId').value.trim();
+            const phone = document.getElementById('studentPhone').value.trim();
+            const geeLink = document.getElementById('geeCodeLink').value.trim();
+            const photo1 = document.getElementById('reportPhoto1').files[0];
+            const photo2 = document.getElementById('reportPhoto2').files[0];
+            const spectral = document.getElementById('reportSpectral').files[0];
+            
+            if(!name || !id || !geeLink) { alert("Please fill Name, ID, and GEE Link"); return; }
+            
+            function readFile(f) { return new Promise(resolve => { if(!f) resolve(null); else { const r = new FileReader(); r.onload = e => resolve(e.target.result); r.readAsDataURL(f); } }); }
+            
+            const photo1Data = await readFile(photo1);
+            const photo2Data = await readFile(photo2);
+            const spectralData = await readFile(spectral);
+            const coords = getCoords();
+            
+            const answers = answerInputs.map(input => input.value.trim() || 'Not answered');
+            
+            // Build Q&A section with full question and answer below
+            let qaHtml = '';
+            for(let i = 0; i < answers.length; i++) {
+                qaHtml += `
+                <div style="margin-bottom: 20px; page-break-inside: avoid;">
+                    <div style="background: #e8f0e4; padding: 10px 15px; border-radius: 8px; font-weight: 700; color: #2a553a;">
+                        ${fullQuestions[i]}
+                    </div>
+                        <div style="padding: 12px 15px; background: white; border-left: 3px solid #cd8d3a; margin-top: 5px; border-radius: 0 8px 8px 0;">
+                        ${escapeHtml(answers[i])}
+                    </div>
+                </div>
+                `;
+            }
+            
+            const integratedCode = generateIntegratedCode();
+            
+            const reportHtml = `
+            <div style="font-family: 'Segoe UI', Arial, sans-serif; padding: 30px; max-width: 1000px; margin: 0 auto;">
+                <div style="text-align: center; border-bottom: 2px solid #2a553a; padding-bottom: 20px; margin-bottom: 20px;">
+                    <h1 style="color: #2a553a;">EEZG 612 Environmental Remote Sensing</h1>
+                <h2>Instructor: Dr. Prakash Mohan</h2>
+                <h3>Assignment-2: Spectral Signature Analysis using Landsat-9 and GEE (10 Marks)</h3>
+                <p>Date: ${new Date().toLocaleDateString()}</p>
+            </div>
+                
+                <div style="background: #f0f4ea; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                    <h3 style="color: #2a553a;">Student Information</h3>
+                <table style="width:100%; border-collapse: collapse;">
+                    <tr><td style="padding:8px;"><strong>Name:</strong></td><td>${escapeHtml(name)}</td></tr>
+                    <tr><td style="padding:8px;"><strong>Student ID:</strong></td><td>${escapeHtml(id)}</td></tr>
+                    ${phone ? `<tr><td style="padding:8px;"><strong>Phone:</strong></td><td>${escapeHtml(phone)}</td></tr>` : ''}
+                    <tr><td style="padding:8px;"><strong>Vegetation Point:</strong></td><td>${coords?.veg.lat.toFixed(6)}°, ${coords?.veg.lng.toFixed(6)}°</td></tr>
+                    <tr><td style="padding:8px;"><strong>Open Area Point:</strong></td><td>${coords?.open.lat.toFixed(6)}°, ${coords?.open.lng.toFixed(6)}°</td></tr>
+                </table>
+            </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #2a553a;">Field Photographs</h3>
+                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <div style="flex:1; text-align:center;"><strong>Vegetation Site</strong><br>${photo1Data ? `<img src="${photo1Data}" style="max-width:100%; max-height:200px; border-radius:12px; margin-top:10px;">` : '<p>No image uploaded</p>'}</div>
+                    <div style="flex:1; text-align:center;"><strong>Open Area Site</strong><br>${photo2Data ? `<img src="${photo2Data}" style="max-width:100%; max-height:200px; border-radius:12px; margin-top:10px;">` : '<p>No image uploaded</p>'}</div>
+                </div>
+            </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #2a553a;">Spectral Reflectance Curve</h3>
+                <div style="text-align:center;">${spectralData ? `<img src="${spectralData}" style="max-width:100%; max-height:300px; border-radius:12px;">` : '<p>No image uploaded</p>'}</div>
+            </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #2a553a;">Google Earth Engine Code</h3>
+                <p><strong>Code Link:</strong> <a href="${escapeHtml(geeLink)}" target="_blank">${escapeHtml(geeLink)}</a></p>
+                <details><summary style="cursor:pointer; color:#1f5e41;">View Complete Script</summary>
+                    <pre style="background:#1e2620; color:#e2f0da; padding:15px; border-radius:12px; overflow-x:auto; font-size:11px; margin-top:10px;">${escapeHtml(integratedCode)}</pre>
+                </details>
+            </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #2a553a;">Question & Answers (One Sentence Each)</h3>
+                ${qaHtml}
+            </div>
+                
+                <div style="text-align: center; font-size: 12px; color: #666; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+                <p>Generated on ${new Date().toLocaleString()}</p>
+            </div>
+            </div>`;
+            
+            const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html><head><title>Assignment Report - ${escapeHtml(name)}</title>
+            <style>
+                    body { margin: 0; padding: 20px; font-family: 'Segoe UI', Arial, sans-serif; }
+                    @media print {
+                    body { margin: 0; padding: 0; }
+                    .no-print { display: none; }
+                    }
+                </style>
+            </head><body>${reportHtml}</body></html>
+            `);
+        printWindow.document.close();
+        printWindow.print();
+            
+        modal.style.display = 'none';
+        alert("Report opened in new window. Use Ctrl+P or Cmd+P to save as PDF. Then submit the report in Taxila portal");
+        };
+        
+        function init() {
+        attachEvents();
+        validateLatitude(vegLatInput.value, vegLatError);
+        validateLongitude(vegLngInput.value, vegLngError);
+        validateLatitude(openLatInput.value, openLatError);
+        validateLongitude(openLngInput.value, openLngError);
+        updateGeometryBtn();
+        geometryCodeSection.style.display = 'none';
+        centeringCodeSection.style.display = 'none';
+        featuresCodeSection.style.display = 'none';
+        featureCollectionCodeSection.style.display = 'none';
+        landsatCodeSection.style.display = 'none';
+        printCodeSection.style.display = 'none';
+        falseColorCodeSection.style.display = 'none';
+        pointsCodeSection.style.display = 'none';
+        bandsCodeSection.style.display = 'none';
+        wavelengthsCodeSection.style.display = 'none';
+        chartStylesCodeSection.style.display = 'none';
+        plotCodeSection.style.display = 'none';
+        integratedCodeSection.style.display = 'none';
+        firstQuestionsSection.classList.remove('visible');
+        secondQuestionsSection.classList.remove('visible');
+        thirdQuestionsSection.classList.remove('visible');
+        fourthQuestionsSection.classList.remove('visible');
+        fifthQuestionsSection.classList.remove('visible');
+        sixthQuestionsSection.classList.remove('visible');
+        seventhQuestionsSection.classList.remove('visible');
+        eighthQuestionsSection.classList.remove('visible');
+        ninthQuestionsSection.classList.remove('visible');
+        tenthQuestionsSection.classList.remove('visible');
+        eleventhQuestionsSection.classList.remove('visible');
+        twelfthQuestionsSection.classList.remove('visible');
+        secondStageArea.style.display = 'none';
+        thirdStageArea.style.display = 'none';
+        fourthStageArea.style.display = 'none';
+        fifthStageArea.style.display = 'none';
+        sixthStageArea.style.display = 'none';
+            seventhStageArea.style.display = 'none';
+        eighthStageArea.style.display = 'none';
+        ninthStageArea.style.display = 'none';
+        tenthStageArea.style.display = 'none';
+        eleventhStageArea.style.display = 'none';
+        twelfthStageArea.style.display = 'none';
+        integrateStageArea.style.display = 'none';
+        reportStageArea.style.display = 'none';
+        }
+        
+        // Note: init() will be called after undertaking is accepted
+</script>
+</body>
+</html>
